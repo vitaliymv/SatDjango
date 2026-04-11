@@ -3,7 +3,7 @@ from django.db.models import Q, Avg, Count
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, TemplateView
 from faker import Faker
 from .models import Student
 from .forms import StudentForm
@@ -93,3 +93,6 @@ class CourseListView(ListView):
        ).filter(
            student_count__gt=2
        )
+
+class IndexView(TemplateView):
+    template_name = "index.html"
