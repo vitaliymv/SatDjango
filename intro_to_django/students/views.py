@@ -8,6 +8,7 @@ from faker import Faker
 from .models import Student
 from .forms import StudentForm
 from .models import Course, Teacher
+import json
 
 class StudentCreateView(CreateView):
     model = Student
@@ -96,3 +97,79 @@ class CourseListView(ListView):
 
 class IndexView(TemplateView):
     template_name = "index.html"
+
+
+class DashboardView(TemplateView):
+    template_name = "dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        stats = Student.objects.aggregate(
+            total_students=Count("id"),
+            avg_score=Avg("score")
+        )
+        context["total_students"] = stats["total_students"]
+        context["avg_score"] = stats["avg_score"]
+        context["total_courses"] = Course.objects.count()
+        context["total_teachers"] = Teacher.objects.count()
+
+        courses = Course.objects.annotate(
+            student_count=Count("students")
+        )
+
+        courses_labels = [c.title for c in courses]
+        course_data = [c.student_count for c in courses]
+
+        context["course_labels"] = json.dumps(courses_labels)
+        context["course_data"] = json.dumps(course_data)
+
+        diff_data = Course.objects.values(
+            "difficulty"
+        ).annotate(
+            count=Count("id")
+        )
+
+        context["diff_labels"] = json.dumps(
+            [
+                str(d["difficulty"])
+                for d in diff_data
+            ]
+        )
+
+        context["diff_data"] = json.dumps(
+            [
+                d["count"]
+                for d in diff_data
+            ]
+        )
+
+        teachers = Teacher.objects.annotate(
+            avg_score=Avg("students__score")
+        )
+
+        teacher_labels = [t.name for t in teachers]
+        teacher_data = [t.avg_score for t in teachers]
+        context["teacher_labels"] = json.dumps(teacher_labels)
+        context["teacher_data"] = json.dumps(teacher_data)
+
+        age_data = Student.objects.values(
+            "age"
+        ).annotate(
+            count=Count("id")
+        ).order_by(
+            "age"
+        )
+
+        context["age_labels"] = json.dumps(
+            [
+                str(a["age"])
+                for a in age_data
+            ]
+        )
+        context["age_data"] = json.dumps(
+            [
+                a["count"]
+                for a in age_data
+            ]
+        )
+        return context
