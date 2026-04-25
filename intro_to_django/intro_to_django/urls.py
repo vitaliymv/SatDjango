@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("students/", include("students.urls")),
     path("__debug__/", include(debug_toolbar.urls)),
-    path("", IndexView.as_view())
+    path("", IndexView.as_view()),
+    path("accounts/", include("accounts.urls"))
 ]
