@@ -38,8 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'students',
     'debug_toolbar',
-    'accounts'
+    'accounts',
+    'rest_framework',
+    "api",
+    "corsheaders"
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 LOGIN_REDIRECT_URL = "dashboard"
@@ -55,7 +60,15 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+   'DEFAULT_PERMISSION_CLASSES': [
+       'rest_framework.permissions.AllowAny',
+   ],
+   'DEFAULT_AUTHENTICATION_CLASSES': [],
+}
 
 INTERNAL_IPS = [
    "127.0.0.1",
